@@ -157,6 +157,9 @@ function! s:RandomName()
 endfunction
 
 function! s:InputName()
+    if exists("g:mdip_random_name")
+        return ""
+    end
     call inputsave()
     let name = input('Image name: ')
     call inputrestore()
@@ -174,21 +177,23 @@ function! mdip#MarkdownClipboardImage()
     " change temp-file-name and image-name
     let g:mdip_tmpname = s:InputName()
     if empty(g:mdip_tmpname)
-      let g:mdip_tmpname = g:mdip_imgname . '_' . s:RandomName()
+      let g:mdip_tmpname = g:mdip_imgname . '-' . s:RandomName()
     endif
 
     let tmpfile = s:SaveFileTMP(workdir, g:mdip_tmpname)
     if tmpfile == 1
+        execute "normal! \"+p"
         return
     else
         " let relpath = s:SaveNewFile(g:mdip_imgdir, tmpfile)
         let extension = split(tmpfile, '\.')[-1]
         let relpath = g:mdip_imgdir_intext . '/' . g:mdip_tmpname . '.' . extension
-        execute "normal! i![" . g:mdip_tmpname[0:0]
-        let ipos = getcurpos()
-        execute "normal! a" . g:mdip_tmpname[1:] . "](" . relpath . ")"
-        call setpos('.', ipos)
-        execute "normal! vt]\<C-g>"
+        execute "normal! i![image](" . relpath . ")"
+        "execute "normal! i![" . g:mdip_tmpname[0:0]
+        "let ipos = getcurpos()
+        "execute "normal! a" . g:mdip_tmpname[1:] . "](" . relpath . ")"
+        "call setpos('.', ipos)
+        "execute "normal! vt]\<C-g>"
     endif
 endfunction
 
